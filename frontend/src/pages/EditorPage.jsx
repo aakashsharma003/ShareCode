@@ -85,8 +85,7 @@ const EditorPage = () => {
       <div className="aside">
         <div className="asideInner">
           <div className="logo">
-            <img src="/logo.png" alt="share-code-logo" className="logoImage" />
-            <div className="editor-logo-name">ShareCode</div>
+            <img src="/app_logo.png" alt="share-code-logo" className="logoImage" />
           </div>
           <h3>Connected</h3>
           <div className="clientsList">
