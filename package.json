@@ -1,8 +1,8 @@
 {
- "scripts": {
-    "build-frontend": "cd frontend && cross-env VITE_APP_BACKEND_URL=http://localhost:5000 yarn build",
+  "scripts": {
+    "build-frontend": "cd frontend && cross-env VITE_APP_BACKEND_URL=https://sharecode-tej0.onrender.com yarn build",
     "start-backend": "cd backend && yarn server:prod",
-    "start": "cd frontend && cross-env VITE_APP_BACKEND_URL=http://localhost:5000 yarn build && cd ../backend && yarn server:prod"
+    "start": "cd frontend && cross-env VITE_APP_BACKEND_URL=https://sharecode-tej0.onrender.com yarn build && cd ../backend && yarn server:prod"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
