@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start":"yarn && yarn server:prod",
+    "start":"yarn server:prod",
     "server:dev": "nodemon server.js",
     "server:prod":"node server.js"
   },

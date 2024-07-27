@@ -9,11 +9,11 @@ const io = new Server(server);
 
 // ---------------------Deployment-----------------------------------------------
 // const __dirname = path.resolve();
-app.use(express.static("../frontend/dist"));
+// app.use(express.static("../frontend/dist"));
 
-app.use((req, res, next) => {
-  res.sendFile(path.join(__dirname,'..','frontend', 'dist', 'index.html'));
-})
+// app.use((req, res, next) => {
+//   res.sendFile(path.join(__dirname,'..','frontend', 'dist', 'index.html'));
+// })
 
 
 // app.get("*", (req, res) => {
