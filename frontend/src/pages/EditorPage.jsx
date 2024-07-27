@@ -64,7 +64,7 @@ const EditorPage = () => {
 
   async function copyRoomId(){
     try{
-      await navigator.clipboard.writeText(roomId);
+      await navigator?.clipboard?.writeText(roomId);
       toast.success("Room ID Copied to your clipboard.")
     }
     catch(err){
