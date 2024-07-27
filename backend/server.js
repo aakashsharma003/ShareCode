@@ -3,9 +3,26 @@ const app = express();
 const { Server } = require("socket.io");
 const http = require("http");
 const ACTIONS = require("./Actions");
-
+const path = require("path")
 const server = http.createServer(app);
 const io = new Server(server);
+
+// ---------------------Deployment-----------------------------------------------
+// const __dirname = path.resolve();
+app.use(express.static("dist"));
+
+app.use((req, res, next) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+})
+
+
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "frontend/dist/index.html"));
+// });
+
+// ---------------------Deployment-----------------------------------------------
+
+
 
 const userSocketMap = {};
 
@@ -60,6 +77,8 @@ io.on("connection", (socket) => {
     socket.leave();
   })
 });
+
+
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`listening on ${PORT}`));
