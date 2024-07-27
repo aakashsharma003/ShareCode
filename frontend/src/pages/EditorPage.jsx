@@ -11,7 +11,7 @@ const EditorPage = () => {
   const socketRef = useRef(null);
   const codeRef = useRef(null);
   const location = useLocation();
-  const navigator = useNavigate();
+  const reactNavigator = useNavigate();
   const {roomId} = useParams();
    const [clients, setClients] = useState([]);
   useEffect(() => {
@@ -23,7 +23,7 @@ const EditorPage = () => {
       function handleErrors(e) {
         console.log("Socket Connection failed!", e);
         toast.error("Socket connection failed, try again later.");
-        navigator("/");
+        reactNavigator("/");
       }
       socketRef.current.emit(ACTIONS.JOIN, {
         roomId,
@@ -64,7 +64,8 @@ const EditorPage = () => {
 
   async function copyRoomId(){
     try{
-      await navigator?.clipboard?.writeText(roomId);
+      // console.log(navigator)
+     await navigator?.clipboard?.writeText(roomId);
       toast.success("Room ID Copied to your clipboard.")
     }
     catch(err){
