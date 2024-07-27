@@ -1,11 +1,11 @@
 {
-  "scripts": {
-    "build-frontend": "cd frontend && yarn build",
+ "scripts": {
+    "build-frontend": "cd frontend && cross-env VITE_APP_BACKEND_URL=http://localhost:5000 yarn build",
     "start-backend": "cd backend && yarn server:prod",
-    "start": "npm-run-all build-frontend start-backend"
+    "start": "cd frontend && cross-env VITE_APP_BACKEND_URL=http://localhost:5000 yarn build && cd ../backend && yarn server:prod"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "npm-run-all": "^4.1.5"
   }
-  
 }
