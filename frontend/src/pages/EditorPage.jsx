@@ -21,7 +21,7 @@ const EditorPage = () => {
       socketRef.current.on("connect_failed", (err) => handleErrors(err));
 
       function handleErrors(e) {
-        console.error("Socket Connection failed!", e);
+        console.log("Socket Connection failed!", e);
         toast.error("Socket connection failed, try again later.");
         navigator("/");
       }
@@ -62,13 +62,13 @@ const EditorPage = () => {
     }
   },[])
 
-  async function copyRoomId(roomId){
+  async function copyRoomId(){
     try{
       await navigator.clipboard.writeText(roomId);
       toast.success("Room ID Copied to your clipboard.")
     }
     catch(err){
-       console.error("Error while copying roomId", err);
+       console.log("Error while copying roomId", err);
        toast.error("Please try after sometime.")
     }
   }
@@ -96,7 +96,7 @@ const EditorPage = () => {
             })}
           </div>
         </div>
-        <button className="btn copyBtn" onClick={copyRoomId(roomId)}>COPY ROOM ID</button>
+        <button className="btn copyBtn" onClick={copyRoomId}>COPY ROOM ID</button>
         <button className="btn leaveBtn" onClick={leaveRoom}>Leave</button>
       </div>
       <div className="editorWrap">
