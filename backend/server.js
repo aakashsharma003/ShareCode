@@ -25,6 +25,33 @@ const io = new Server(server);
 
 
 const userSocketMap = {};
+// Set up multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage: storage });
+
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// file upload route
+app.post("/upload", upload.single("file"), (req, res) => {
+  if (req.file) {
+    console.log("Uploaded file details:", req.file);
+    res.json({
+      originalName: req.file.originalname,
+      filePath: `/uploads/${req.file.filename}`,
+    });
+  } else {
+    res.status(400).send("No file uploaded");
+  }
+});
 
 function getAllConnectedClients(roomId) {
   return Array.from(io.sockets.adapter.rooms.get(roomId) || []).map(
@@ -84,7 +111,7 @@ io.on("connection", (socket) => {
      console.log("Stopping stream for room:", roomId);
      io.to(roomId).emit(ACTIONS.STOP_STREAM);
    });
-   
+
   socket.on("disconnecting", () => {
     const rooms = [...socket.rooms];
     rooms.forEach((roomId) => {
