@@ -40,7 +40,7 @@ const EditorPage = () => {
           setClients(clients);
           if (username !== location.state?.username) {
             toast.success(`${username} joined the room`);
-            console.log(`${username} joined the room`);
+            // console.log(`${username} joined the room`);
           }
 
           socketRef.current.emit(ACTIONS.SYNC_CODE, {
@@ -59,13 +59,13 @@ const EditorPage = () => {
       });
       //  listening for song upload event
       socketRef.current.on(ACTIONS.UPLOAD_SONG, (songData) => {
-        console.log("Song uploaded:", songData);
+        // console.log("Song uploaded:", songData);
         setCurrentSong(songData);
         toast.success("Song uploaded successfully!");
       });
       //  listening for stream event
       socketRef.current.on(ACTIONS.START_STREAM, (song) => {
-        console.log("Received song to stream:", song);
+        // console.log("Received song to stream:", song);
         setCurrentSong(song);
         if (audioRef.current) {
           audioRef.current.src = `${import.meta.env.VITE_APP_BACKEND_URL}${
@@ -75,10 +75,10 @@ const EditorPage = () => {
           audioRef.current
             .play()
             .then(() => {
-              console.log("Audio playback started");
+              // console.log("Audio playback started");
             })
             .catch((error) => {
-              console.error("Error playing audio:", error);
+              // console.error("Error playing audio:", error);
               toast.error("Failed to play audio.");
             });
         }
@@ -113,7 +113,7 @@ const EditorPage = () => {
       toast.success("Room ID Copied to your clipboard.")
     }
     catch(err){
-       console.log("Error while copying roomId", err);
+      //  console.log("Error while copying roomId", err);
        toast.error("Please try after sometime.")
     }
   }
@@ -133,7 +133,7 @@ const EditorPage = () => {
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log("Upload response:", data);
+          // console.log("Upload response:", data);
           // console.log(socketRef.current)
           socketRef.current.emit(ACTIONS.UPLOAD_SONG, {
             roomId,
@@ -143,7 +143,7 @@ const EditorPage = () => {
         })
         .catch((err) => {
           toast.error("Failed to upload song.");
-          console.log(err);
+          // console.log(err);
         });
     } else {
       toast.error("No file selected.");
@@ -152,11 +152,11 @@ const EditorPage = () => {
 
   function startStream() {
     if (currentSong) {
-      console.log("Starting stream with song:", currentSong);
+      // console.log("Starting stream with song:", currentSong);
       if (currentSong.songPath) {
         socketRef.current.emit(ACTIONS.START_STREAM, currentSong);
       } else {
-        console.error("Missing filePath in currentSong:", currentSong);
+        // console.error("Missing filePath in currentSong:", currentSong);
         toast.error("Failed to start stream, missing song data.");
       }
     } else {
@@ -165,7 +165,7 @@ const EditorPage = () => {
   }
 
   function stopStream() {
-    console.log("Stopping stream");
+    // console.log("Stopping stream");
     socketRef.current.emit(ACTIONS.STOP_STREAM, roomId);
   }
 
@@ -211,6 +211,7 @@ const EditorPage = () => {
         <div className="songControls">
           <input
             type="file"
+            accept="audio/*"
             onChange={(e) => setSelectedFile(e.target.files[0])}
           />
           <button onClick={uploadSong}>Upload Song</button>
