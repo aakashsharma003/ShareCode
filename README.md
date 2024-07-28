@@ -12,3 +12,13 @@
 </p>
 
 </br>
+
+### Todo
+- Responsive UI for editor and also a custom music player component which should be portable
+- mobile responsiveness for sidebar.
+- homepage. 
+- It is not visible that who one is typing that should be fixed.
+- webrtc connection instead of socket.io with mess topology (if needed)
+- chat functionality and room Admin control accesses
+- syncronization in song when someone new joins the room
+
