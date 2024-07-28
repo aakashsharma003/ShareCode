@@ -119,7 +119,7 @@ const EditorPage = () => {
   }
 
   function leaveRoom(){
-    navigator("/")
+    reactNavigator("/")
   }
 
   function uploadSong() {
