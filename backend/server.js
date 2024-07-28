@@ -2,10 +2,14 @@ const express = require("express");
 const app = express();
 const { Server } = require("socket.io");
 const http = require("http");
+const multer = require("multer");
 const ACTIONS = require("./Actions");
 const path = require("path")
+const cors = require("cors");
+app.use(cors({ origin: "*" }));
 const server = http.createServer(app);
 const io = new Server(server);
+
 
 // ---------------------Deployment-----------------------------------------------
 // const __dirname = path.resolve();
@@ -23,9 +27,8 @@ const io = new Server(server);
 // ---------------------Deployment-----------------------------------------------
 
 
-
 const userSocketMap = {};
-// Set up multer for file uploads
+// Setting up multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
