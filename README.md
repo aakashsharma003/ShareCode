@@ -21,4 +21,5 @@
 - webrtc connection instead of socket.io with mess topology (if needed)
 - chat functionality and room Admin control accesses
 - syncronization in song when someone new joins the room
+- each uploaded song should be saved in roomId directory and that directory should be cleared when all leave instead of all songs. 
 
