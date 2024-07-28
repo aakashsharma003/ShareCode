@@ -65,6 +65,26 @@ io.on("connection", (socket) => {
     //  console.log("receiving", code);
      io.to(socketId).emit(ACTIONS.CODE_CHANGE, { code });
    });
+
+   socket.on(ACTIONS.UPLOAD_SONG, (songData) => {
+     console.log("Song uploaded:", songData);
+     io.to(songData.roomId).emit(ACTIONS.UPLOAD_SONG, songData);
+   });
+
+   socket.on(ACTIONS.START_STREAM, (song) => {
+     if (song && song.roomId) {
+       console.log("Starting stream for song from backend:", song);
+       io.to(song.roomId).emit(ACTIONS.START_STREAM, song);
+     } else {
+       console.error("Invalid song object:", song);
+     }
+   });
+
+   socket.on(ACTIONS.STOP_STREAM, (roomId) => {
+     console.log("Stopping stream for room:", roomId);
+     io.to(roomId).emit(ACTIONS.STOP_STREAM);
+   });
+   
   socket.on("disconnecting", () => {
     const rooms = [...socket.rooms];
     rooms.forEach((roomId) => {
