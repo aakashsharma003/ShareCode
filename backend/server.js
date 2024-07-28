@@ -6,6 +6,7 @@ const multer = require("multer");
 const ACTIONS = require("./Actions");
 const path = require("path")
 const cors = require("cors");
+const fs = require("fs-extra");
 app.use(cors({ origin: "*" }));
 const server = http.createServer(app);
 const io = new Server(server);
@@ -26,7 +27,8 @@ const io = new Server(server);
 
 // ---------------------Deployment-----------------------------------------------
 
-
+const uploadDir = path.join(__dirname, "uploads");
+fs.ensureDirSync(uploadDir);
 const userSocketMap = {};
 // Setting up multer for file uploads
 const storage = multer.diskStorage({
