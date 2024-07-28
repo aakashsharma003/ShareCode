@@ -163,4 +163,50 @@ footer a:hover {
     line-height: 1.6;
     padding-top: 20px;
 }
+.songControls {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.songControls input[type="file"] {
+  display: block;
+  margin-bottom: 20px;
+}
+
+.songControls button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  color: black;
+  font-size: 16px;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: background-color 0.3s, opacity 0.3s;
+}
+
+.songControls .uploadBtn {
+  background-color: #007bff;
+}
+
+.songControls .startStreamBtn {
+  background-color: #28a745;
+}
+
+.songControls .stopStreamBtn {
+  background-color: #dc3545;
+}
+
+.songControls button:hover {
+  opacity: 0.9;
+}
+
+.songControls p {
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
 
