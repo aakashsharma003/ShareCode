@@ -13,7 +13,7 @@
 
 </br>
 
-### Todo
+## Todo
 - Responsive UI for editor and also a custom music player component which should be portable
 - mobile responsiveness for sidebar.
 - homepage. 
@@ -23,3 +23,5 @@
 - syncronization in song when someone new joins the room
 - each uploaded song should be saved in roomId directory and that directory should be cleared when all leave instead of all songs. 
 
+## Repo Activity
+![ShareCode](https://repobeats.axiom.co/api/embed/ea3d62398d96c66d51b387967b8650199f7a6d91.svg "Repobeats analytics image")
