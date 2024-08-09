@@ -13,6 +13,9 @@
 
 </br>
 
+# Problem 
+- we are facing ``deadlock`` via simultaneous read and write operation and must remove that via `semaphores` and `locks`.
+
 ## Todo
 - Responsive UI for editor and also a custom music player component which should be portable
 - mobile responsiveness for sidebar.
