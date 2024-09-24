@@ -16,8 +16,10 @@
 # Problem 
 - we are facing ``deadlock`` via simultaneous read and write operation and must remove that via `semaphores` and `locks`.
 
+
 ## Todo
 - Responsive UI for editor and also a custom music player component which should be portable
+- Open dashboard with digital ocean backend deployement
 - mobile responsiveness for sidebar.
 - homepage. 
 - It is not visible that who one is typing that should be fixed.
