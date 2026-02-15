@@ -9,7 +9,12 @@ const cors = require("cors");
 const fs = require("fs-extra");
 app.use(cors({ origin: "*" }));
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 
 // ---------------------Deployment-----------------------------------------------
 // const __dirname = path.resolve();
@@ -27,14 +32,22 @@ const io = new Server(server);
 
 const uploadDir = path.join(__dirname, "uploads");
 fs.ensureDirSync(uploadDir);
-const userSocketMap = {};
-// Setting up multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, `${Date.now()}-${file.originalname}`);
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("cloudinary").v2;
+const dotenv = require("dotenv");
+dotenv.config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "sharecode_uploads",
+    resource_type: "auto",
   },
 });
 
@@ -48,12 +61,15 @@ app.post("/upload", upload.single("file"), (req, res) => {
     console.log("Uploaded file details:", req.file);
     res.json({
       originalName: req.file.originalname,
-      filePath: `/uploads/${req.file.filename}`,
+      filePath: req.file.path,
     });
   } else {
     res.status(400).send("No file uploaded");
   }
 });
+
+const userSocketMap = {};
+const roomState = {}; // { roomId: { songs: [] } }
 
 function getAllConnectedClients(roomId) {
   return Array.from(io.sockets.adapter.rooms.get(roomId) || []).map(
@@ -66,12 +82,7 @@ function getAllConnectedClients(roomId) {
   );
 }
 async function clearUploads() {
-  try {
-    await fs.emptyDir(uploadDir);
-    console.log(`Cleared all uploads`);
-  } catch (err) {
-    console.error(`Failed to clear uploads:`, err);
-  }
+  console.log("Uploads are managed by Cloudinary, no local cleanup needed.");
 }
 io.on("connection", (socket) => {
   console.log("socket connected", socket.id);
@@ -79,8 +90,19 @@ io.on("connection", (socket) => {
   socket.on(ACTIONS.JOIN, ({ roomId, username }) => {
     userSocketMap[socket.id] = username;
     socket.join(roomId);
+
+    // Initialize room state if not exists
+    if (!roomState[roomId]) {
+      roomState[roomId] = { songs: [] };
+    }
+
     const clients = getAllConnectedClients(roomId);
-    // console.log("length",clients.length);
+
+    // Sync existing songs to the user who just joined
+    io.to(socket.id).emit(ACTIONS.SYNC_SONGS, {
+      songs: roomState[roomId].songs
+    });
+
     // lets notify all clients
     clients.forEach(({ socketId }) => {
       io.to(socketId).emit(ACTIONS.JOINED, {
@@ -105,7 +127,22 @@ io.on("connection", (socket) => {
 
   socket.on(ACTIONS.UPLOAD_SONG, (songData) => {
     console.log("Song uploaded:", songData);
-    io.to(songData.roomId).emit(ACTIONS.UPLOAD_SONG, songData);
+
+    const { roomId, songName, songPath, coverImage, username } = songData;
+    if (roomId && roomState[roomId]) {
+      roomState[roomId].songs.push({ songName, songPath, coverImage, addedBy: username });
+    }
+
+    io.to(roomId).emit(ACTIONS.UPLOAD_SONG, songData);
+  });
+
+  socket.on(ACTIONS.CURSOR_CHANGE, ({ roomId, cursor }) => {
+    const username = userSocketMap[socket.id];
+    socket.in(roomId).emit(ACTIONS.CURSOR_CHANGE, {
+      socketId: socket.id,
+      cursor,
+      username
+    });
   });
 
   socket.on(ACTIONS.START_STREAM, (song) => {

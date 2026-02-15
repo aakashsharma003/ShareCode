@@ -1,0 +1,71 @@
+[dotenv@17.3.1] injecting env (3) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+listening on 5000
+socket connected QqESX0UqvhPYdrZMAAAB
+socket connected quiIXwo7KJGYoY80AAAD
+socket connected cb2f3tT1WSq5jOC4AAAF
+Uploaded file details: {
+  fieldname: 'file',
+  originalname: 'cover_art.jpg',
+  encoding: '7bit',
+  mimetype: 'image/jpeg',
+  path: 'https://res.cloudinary.com/dqk71ojdz/image/upload/v1771165984/sharecode_uploads/nqiqgkqhcq8ezic3lvmh.jpg',
+  size: 4258,
+  filename: 'sharecode_uploads/nqiqgkqhcq8ezic3lvmh'
+}
+Uploaded file details: {
+  fieldname: 'file',
+  originalname: 'End_Of_Beginning.mp3',
+  encoding: '7bit',
+  mimetype: 'audio/mpeg',
+  path: 'https://res.cloudinary.com/dqk71ojdz/video/upload/v1771165990/sharecode_uploads/g9kytljylcmbywsfghci.mp3',
+  size: 2554277,
+  filename: 'sharecode_uploads/g9kytljylcmbywsfghci'
+}
+Song uploaded: {
+  roomId: 'ModernUI_Test',
+  songName: 'End_Of_Beginning.mp3',
+  songPath: 'https://res.cloudinary.com/dqk71ojdz/video/upload/v1771165990/sharecode_uploads/g9kytljylcmbywsfghci.mp3',
+  coverImage: 'https://res.cloudinary.com/dqk71ojdz/image/upload/v1771165984/sharecode_uploads/nqiqgkqhcq8ezic3lvmh.jpg',
+  username: 'User1'
+}
+Starting stream for song from backend: {
+  songName: 'End_Of_Beginning.mp3',
+  songPath: 'https://res.cloudinary.com/dqk71ojdz/video/upload/v1771165990/sharecode_uploads/g9kytljylcmbywsfghci.mp3',
+  addedBy: 'User1',
+  roomId: 'ModernUI_Test'
+}
+Stopping stream for room: ModernUI_Test
+socket connected sq3o2jHDmh4yGKtRAAAH
+Uploaded file details: {
+  fieldname: 'file',
+  originalname: 'cover_art.jpg',
+  encoding: '7bit',
+  mimetype: 'image/jpeg',
+  path: 'https://res.cloudinary.com/dqk71ojdz/image/upload/v1771166190/sharecode_uploads/q5uvtmvxeh2wvjyvktvq.jpg',
+  size: 4258,
+  filename: 'sharecode_uploads/q5uvtmvxeh2wvjyvktvq'
+}
+Uploaded file details: {
+  fieldname: 'file',
+  originalname: 'End_Of_Beginning.mp3',
+  encoding: '7bit',
+  mimetype: 'audio/mpeg',
+  path: 'https://res.cloudinary.com/dqk71ojdz/video/upload/v1771166197/sharecode_uploads/f8raykzgyqmiitcyjvjf.mp3',
+  size: 2554277,
+  filename: 'sharecode_uploads/f8raykzgyqmiitcyjvjf'
+}
+Song uploaded: {
+  roomId: '5ef3094f-6be5-41fd-a2cc-d7242ce38727',
+  songName: 'End_Of_Beginning.mp3',
+  songPath: 'https://res.cloudinary.com/dqk71ojdz/video/upload/v1771166197/sharecode_uploads/f8raykzgyqmiitcyjvjf.mp3',
+  coverImage: 'https://res.cloudinary.com/dqk71ojdz/image/upload/v1771166190/sharecode_uploads/q5uvtmvxeh2wvjyvktvq.jpg',
+  username: 'sjhkj'
+}
+Starting stream for song from backend: {
+  songName: 'End_Of_Beginning.mp3',
+  songPath: 'https://res.cloudinary.com/dqk71ojdz/video/upload/v1771166197/sharecode_uploads/f8raykzgyqmiitcyjvjf.mp3',
+  addedBy: 'sjhkj',
+  roomId: '5ef3094f-6be5-41fd-a2cc-d7242ce38727'
+}
+Stopping stream for room: 5ef3094f-6be5-41fd-a2cc-d7242ce38727
+socket connected j-B-e01BnQK-SH1VAAAJ

@@ -7,6 +7,8 @@ const ACTIONS = {
   LEAVE: "leave",
   UPLOAD_SONG: "uploadSong",
   START_STREAM: "startStream",
-  STOP_STREAM: "stopStream",
+  STOP_STREAM: "stop_stream",
+  SYNC_SONGS: "sync_songs",
+  CURSOR_CHANGE: "cursor-change",
 };
 module.exports = ACTIONS;

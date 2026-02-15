@@ -7,19 +7,35 @@ import { Navigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import MusicPlayer from "../components/MusicPlayer";
+
 const EditorPage = () => {
   const socketRef = useRef(null);
   const codeRef = useRef(null);
-  const audioRef = useRef(null);
   const location = useLocation();
   const reactNavigator = useNavigate();
-  const {roomId} = useParams();
-   const [clients, setClients] = useState([]);
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [currentSong, setCurrentSong] = useState();
+  const { roomId } = useParams();
+  const [clients, setClients] = useState([]);
+
+  // Song & Player States
+  const [currentSong, setCurrentSong] = useState(null);
+  const [songHistory, setSongHistory] = useState([]);
+  const [isConnecting, setIsConnecting] = useState(true);
+
   useEffect(() => {
-    async function init(){
-      socketRef.current = await initSocket();
+    async function init() {
+      try {
+        socketRef.current = await initSocket();
+      } catch (err) {
+        console.error("Socket Init Failed", err);
+        toast.error("Socket initialization failed");
+        reactNavigator("/");
+        return;
+      }
+
+      // Connection successful, turn off loader
+      setIsConnecting(false);
+
       socketRef.current.on("connect_error", (err) => handleErrors(err));
       socketRef.current.on("connect_failed", (err) => handleErrors(err));
 
@@ -28,6 +44,7 @@ const EditorPage = () => {
         toast.error("Socket connection failed, try again later.");
         reactNavigator("/");
       }
+
       socketRef.current.emit(ACTIONS.JOIN, {
         roomId,
         username: location.state?.username,
@@ -40,7 +57,6 @@ const EditorPage = () => {
           setClients(clients);
           if (username !== location.state?.username) {
             toast.success(`${username} joined the room`);
-            // console.log(`${username} joined the room`);
           }
 
           socketRef.current.emit(ACTIONS.SYNC_CODE, {
@@ -50,6 +66,11 @@ const EditorPage = () => {
         }
       );
 
+      // Listening for initial song sync
+      socketRef.current.on(ACTIONS.SYNC_SONGS, ({ songs }) => {
+        setSongHistory(songs);
+      });
+
       //  listening for disconnected event
       socketRef.current.on(ACTIONS.DISCONNECTED, ({ socketId, username }) => {
         toast.success(`${username} left the room.`);
@@ -57,122 +78,141 @@ const EditorPage = () => {
           return prev.filter((client) => client.socketId !== socketId);
         });
       });
+
       //  listening for song upload event
       socketRef.current.on(ACTIONS.UPLOAD_SONG, (songData) => {
-        // console.log("Song uploaded:", songData);
-        setCurrentSong(songData);
-        toast.success("Song uploaded successfully!");
+        setSongHistory(prev => [...prev, {
+          songName: songData.songName,
+          songPath: songData.songPath, // Cloudinary URL
+          addedBy: songData.username || "Unknown" // We need to send username from backend/frontend
+        }]);
+
+        // If it's the first song or we want to auto-play (optional), we could set it here. 
+        // For now, just add to history.
+        // toast.success(`${songData.username || "Someone"} added ${songData.songName}`);
       });
+
       //  listening for stream event
       socketRef.current.on(ACTIONS.START_STREAM, (song) => {
-        // console.log("Received song to stream:", song);
         setCurrentSong(song);
-        if (audioRef.current) {
-          audioRef.current.src = `${import.meta.env.VITE_APP_BACKEND_URL}${
-            song.songPath
-          }`;
-          audioRef.current.load();
-          audioRef.current
-            .play()
-            .then(() => {
-              // console.log("Audio playback started");
-            })
-            .catch((error) => {
-              // console.error("Error playing audio:", error);
-              toast.error("Failed to play audio.");
-            });
-        }
       });
+
       //  listening for stop stream event
       socketRef.current.on(ACTIONS.STOP_STREAM, () => {
-        console.log("Streaming stopped.");
         setCurrentSong(null);
         toast.success("Streaming stopped.");
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current.src = "";
-        }
       });
     }
     init();
+
     // prevention from memory leaks
     return () => {
-      socketRef.current.disconnect();
-      socketRef.current.off(ACTIONS.JOINED);
-      socketRef.current.off(ACTIONS.DISCONNECTED);
-       socketRef.current.off(ACTIONS.UPLOAD_SONG);
-       socketRef.current.off(ACTIONS.START_STREAM);
-       socketRef.current.off(ACTIONS.STOP_STREAM);
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current.off(ACTIONS.JOINED);
+        socketRef.current.off(ACTIONS.SYNC_SONGS);
+        socketRef.current.off(ACTIONS.DISCONNECTED);
+        socketRef.current.off(ACTIONS.UPLOAD_SONG);
+        socketRef.current.off(ACTIONS.START_STREAM);
+        socketRef.current.off(ACTIONS.STOP_STREAM);
+      }
     }
-  },[])
+  }, [])
 
-  async function copyRoomId(){
-    try{
-      // console.log(navigator)
-     await navigator?.clipboard?.writeText(roomId);
+  async function copyRoomId() {
+    try {
+      await navigator?.clipboard?.writeText(roomId);
       toast.success("Room ID Copied to your clipboard.")
     }
-    catch(err){
-      //  console.log("Error while copying roomId", err);
-       toast.error("Please try after sometime.")
+    catch (err) {
+      toast.error("Please try after sometime.")
     }
   }
 
-  function leaveRoom(){
+  function leaveRoom() {
     reactNavigator("/")
   }
 
-  function uploadSong() {
-    if (selectedFile) {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
+  function uploadSong(audioFile, coverFile) {
+    if (!audioFile) return;
 
-      fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/upload`, {
+    const toastId = toast.loading("Uploading song...");
+
+    // Ensure no trailing slash
+    const backendUrl = (import.meta.env.VITE_APP_BACKEND_URL || "").replace(/\/$/, "");
+
+    const uploadFile = async (file) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch(`${backendUrl}/upload`, {
         method: "POST",
         body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          // console.log("Upload response:", data);
-          // console.log(socketRef.current)
-          socketRef.current.emit(ACTIONS.UPLOAD_SONG, {
-            roomId,
-            songName: data.originalName,
-            songPath: data.filePath,
-          });
-        })
-        .catch((err) => {
-          toast.error("Failed to upload song.");
-          // console.log(err);
-        });
-    } else {
-      toast.error("No file selected.");
+      });
+      if (!response.ok) throw new Error("Upload failed");
+      return await response.json();
+    };
+
+    const promises = [uploadFile(audioFile)];
+    if (coverFile) {
+      promises.push(uploadFile(coverFile));
     }
+
+    Promise.all(promises)
+      .then((results) => {
+        const audioData = results[0];
+        const coverData = results.length > 1 ? results[1] : null;
+
+        toast.dismiss(toastId);
+        toast.success("Song uploaded!");
+
+        // Emit event to server
+        socketRef.current.emit(ACTIONS.UPLOAD_SONG, {
+          roomId,
+          songName: audioData.originalName,
+          songPath: audioData.filePath, // Cloudinary URL
+          coverImage: coverData ? coverData.filePath : null,
+          username: location.state?.username // Send who uploaded it
+        });
+      })
+      .catch((err) => {
+        toast.dismiss(toastId);
+        toast.error("Failed to upload song.");
+        console.error(err);
+      });
   }
 
-  function startStream() {
-    if (currentSong) {
-      // console.log("Starting stream with song:", currentSong);
-      if (currentSong.songPath) {
-        socketRef.current.emit(ACTIONS.START_STREAM, currentSong);
-      } else {
-        // console.error("Missing filePath in currentSong:", currentSong);
-        toast.error("Failed to start stream, missing song data.");
-      }
+  function startStream(song) {
+    if (song && song.songPath) {
+      // We need to ensure we send the roomId so backend can broadcast
+      const songPayload = { ...song, roomId };
+      socketRef.current.emit(ACTIONS.START_STREAM, songPayload);
     } else {
-      toast.error("No song available to stream.");
+      toast.error("Cannot play this song.");
     }
   }
 
   function stopStream() {
-    // console.log("Stopping stream");
     socketRef.current.emit(ACTIONS.STOP_STREAM, roomId);
   }
 
- 
-  if(!location.state){
-    return <Navigate to={"/"}/>
+
+  if (!location.state) {
+    return <Navigate to={"/"} />
   }
+
+  // Loader for Socket Connection
+  if (isConnecting) {
+    return (
+      <div className="homePageWrapper">
+        <div style={{ textAlign: 'center' }}>
+          <h3>Connecting to Server...</h3>
+          <p>This may take a moment if the server is waking up.</p>
+          {/* Simple CSS Loader could be added here */}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="mainWrap">
       <div className="aside">
@@ -186,9 +226,9 @@ const EditorPage = () => {
           </div>
           <h3>Connected</h3>
           <div className="clientsList">
-            {clients.map((clients) => {
+            {clients.map((client) => {
               return (
-                <Client key={clients.socketId} username={clients.username} />
+                <Client key={client.socketId} username={client.username} />
               );
             })}
           </div>
@@ -200,6 +240,7 @@ const EditorPage = () => {
           Leave
         </button>
       </div>
+
       <div className="editorWrap">
         <Editor
           socketRef={socketRef}
@@ -208,24 +249,16 @@ const EditorPage = () => {
             codeRef.current = code;
           }}
         />
-        <div className="songControls">
-          <input
-            type="file"
-            accept="audio/*"
-            onChange={(e) => setSelectedFile(e.target.files[0])}
-          />
-          <button onClick={uploadSong}>Upload Song</button>
-          <button onClick={startStream}>Start Stream</button>
-          <button onClick={stopStream}>Stop Stream</button>
-          {currentSong && (
-            <div>
-              <p>Now Streaming: {currentSong.songName}</p>
-              <audio ref={audioRef} controls>
-                <source src={currentSong.songPath} type="audio/mpeg" />
-              </audio>
-            </div>
-          )}
-        </div>
+      </div>
+
+      <div className="rightAside">
+        <MusicPlayer
+          currentSong={currentSong}
+          onUpload={uploadSong}
+          onStartStream={startStream}
+          onStopStream={stopStream}
+          songHistory={songHistory}
+        />
       </div>
     </div>
   );
